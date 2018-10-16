@@ -29,11 +29,21 @@ SOURCES += \
         mainwindow.cpp \
     baseglwidget.cpp \
     testwindow.cpp \
+    building.cpp \
+    squaredbuilding.cpp \
+    circularbuilding.cpp \
+    house.cpp \
+    tower.cpp
 
 HEADERS += \
         mainwindow.h \
     baseglwidget.h \
     testwindow.h \
+    building.h \
+    squaredbuilding.h \
+    circularbuilding.h \
+    house.h \
+    tower.h
 
 FORMS += \
         mainwindow.ui

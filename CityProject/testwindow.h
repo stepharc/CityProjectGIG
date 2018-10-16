@@ -2,7 +2,10 @@
 #define TESTWINDOW_H
 
 #include <QImage>
+#include <QApplication>
 #include "baseglwidget.h"
+#include "tower.h"
+#include "house.h"
 
 class testWindow : public baseGLWidget
 {
