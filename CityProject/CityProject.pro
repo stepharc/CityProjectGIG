@@ -43,6 +43,7 @@ HEADERS += \
     squaredbuilding.h \
     circularbuilding.h \
     house.h \
+    tower.h \
     tower.h
 
 FORMS += \
