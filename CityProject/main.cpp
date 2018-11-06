@@ -1,12 +1,10 @@
-#include "testwindow.h"
+#include "mainwindow.h"
 
 int main(int argc, char *argv[])
 {
+    srand(time(NULL));
     QApplication a(argc, argv);
-    testWindow tWin;
-    House testHouse = House();
-    Tower testTower = Tower();
-    tWin.show();   //Exécution de la fenêtre de rendu OpenGL
-
+    MainWindow mWin;
+    mWin.show();
     return a.exec();
 }
