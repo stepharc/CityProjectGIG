@@ -14,4 +14,4 @@ Nous allons tout d'abord implémenter une disposition de zones en cercles concen
 
 A noter que la surface est quadrillée par des carrés d'un mètre par un mètre. Dans chacun de ces carrés, on sait si ce dernier est occupé par une route, un bâtiment, ou tout simplement vide.
 
-Participants : Stéphane ARCELLIER, Fatou BINETOU-FALL
+Participants : Stéphane ARCELLIER, Fatou Binetou FALL
