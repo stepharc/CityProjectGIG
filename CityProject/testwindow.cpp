@@ -36,7 +36,7 @@ void testWindow::resizeGL(int width, int height)
 void testWindow::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    build.generateBuilding();
+    build->generateBuilding();
     glFlush();
 }
 
@@ -53,6 +53,6 @@ void testWindow::loadTexture(QString textureName)
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 }
 
-void testWindow::loadBuilding(House h){
+void testWindow::loadBuilding(Building * h){
     build = h;
 }

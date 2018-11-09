@@ -6,7 +6,6 @@
 class House : public SquaredBuilding
 {
 private :
-
 public:
     House();
 };

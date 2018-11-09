@@ -24,6 +24,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+    testWindow * twin;
 };
 
 #endif // MAINWINDOW_H

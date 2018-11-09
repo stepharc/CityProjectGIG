@@ -15,11 +15,11 @@ class testWindow : public baseGLWidget
         void resizeGL(int width, int height);
         void paintGL();
         void loadTexture(QString texturename);
-        void loadBuilding(House h);
+        void loadBuilding(Building * h);
 
     private:
         GLuint texture[1]; //On charge une seule texture
-        House build;
+        Building * build;
 };
 
 #endif // TESTWINDOW_H
