@@ -59,24 +59,25 @@ int surface_ville::decouper_bloc(Block b)
     int decoupe = 0;
     bool okX = b.hauteur_block >= minBlockSize && b.hauteur_block <= maxBlockSize,
          okY = b.largeur_block >= minBlockSize && b.largeur_block <= maxBlockSize;
-    //cout<<okX<<" "<<okY<<endl;
+
 
     if(okX){ //pas de dépcoupage horizontale
 
         if(okY){               //pas de découpage verticale
+
             cout<<"pas de découpage nécessaire "<<endl;
             return decoupe;
         }
         else{                  //découpage verticale
 
-            y = position_route(b.debutBlockY,b.largeur_block);
+            y = position_route(b.debutBlockY,b.debutBlockY+b.largeur_block);
 
             tracer_route(b.debutBlockX,b.debutBlockX+b.hauteur_block,y,0);
             //rangement des deux blocs
 
             blocs_ville.push_back(Block(b.debutBlockX, b.debutBlockY, y-b.debutBlockY,b.hauteur_block));
 
-            blocs_ville.push_back(Block(b.debutBlockX, b.debutBlockY+y+1, b.largeur_block - y-1, b.hauteur_block));
+            blocs_ville.push_back(Block(b.debutBlockX, y+1, b.largeur_block -y + b.debutBlockY-1, b.hauteur_block));
             decoupe = 1;
 
         }
@@ -84,7 +85,7 @@ int surface_ville::decouper_bloc(Block b)
     }
     else{                       //découpage horizontale
 
-        x = position_route(b.debutBlockX,b.hauteur_block);
+        x = position_route(b.debutBlockX,b.debutBlockX+b.hauteur_block);
 
         tracer_route(b.debutBlockY,b.debutBlockY+b.largeur_block,x,1);
 
@@ -92,13 +93,13 @@ int surface_ville::decouper_bloc(Block b)
             //rangement des deux blocs
             blocs_ville.push_back(Block(b.debutBlockX, b.debutBlockY, b.largeur_block, x-b.debutBlockY));
 
-            blocs_ville.push_back(Block(b.debutBlockX+x+1, b.debutBlockY, b.largeur_block, b.hauteur_block- x-1));
+            blocs_ville.push_back(Block(x+1, b.debutBlockY, b.largeur_block, b.hauteur_block- x+b.debutBlockX -1));
 
             decoupe = 1;
 
         }else{                  //découpage verticale
 
-            y = position_route(b.debutBlockY,b.largeur_block);
+            y = position_route(b.debutBlockY,b.debutBlockY+b.largeur_block);
 
             tracer_route(b.debutBlockX,b.debutBlockX+b.hauteur_block,y,0);
 
@@ -120,12 +121,13 @@ int surface_ville::decouper_bloc(Block b)
 void surface_ville::decouper_ville(){
 
         for(int i = 0; i < blocs_ville.size(); i++){
-            cout<<"i = "<<i<<" taille tableau = "<<blocs_ville.size()<<endl;
+            //cout<<"i = "<<i<<" taille tableau = "<<blocs_ville.size()<<endl;
             int decoupe = decouper_bloc(blocs_ville[i]);
             if(decoupe == 1){
                 blocs_ville.erase(blocs_ville.begin()+i);
                 i--;
-                cout<<"i = "<<i<<" taille tableau = "<<blocs_ville.size()<<endl;
+                //cout<<"i = "<<i<<" taille tableau = "<<blocs_ville.size()<<endl;
+
 
             }
         }
