@@ -6,10 +6,12 @@ SquaredBuilding::SquaredBuilding(int minh, int maxh, int minw, int maxw) : Build
 }
 
 void SquaredBuilding::generateBuilding(){
-    float minl = posX, maxl = posX + getWidth();
-    float minh = posY, maxh = posY + getHeight();
-    float minp = posZ, maxp = posZ + getWidth();
-    glLoadIdentity();
+    float posX = getSurfaceX();
+    float posY = getSurfaceY();
+    float posZ = getSurfaceZ();
+    float minl = posX - (getWidth()/2), maxl = posX + (getWidth()/2);
+    float minh = posY - (getHeight()/2), maxh = posY + (getHeight()/2);
+    float minp = posZ - (getWidth()/2), maxp = posZ + (getWidth()/2);
     glColor3f(0.5,0.5,0.5);
 
     //Drawing cube
@@ -60,10 +62,4 @@ void SquaredBuilding::generateBuilding(){
         glVertex3f(minl, minh, minp);
         glVertex3f(minl, maxh, minp);
     glEnd();
-}
-
-void SquaredBuilding::setSurfacePosition(float x, float y, float z){
-    posX = x;
-    posY = y;
-    posZ = z;
 }
