@@ -1,9 +1,10 @@
 #ifndef BASEGLWIDGET_H
 #define BASEGLWIDGET_H
 
-
+#include <GL/glut.h>
 #include <QtOpenGL>
 #include <QGLWidget>
+#include <GLES3/gl3.h>
 
 class baseGLWidget : public QGLWidget
 {
@@ -16,6 +17,10 @@ public:
     virtual void keyPressEvent( QKeyEvent *keyEvent );
     void perspectiveGL( GLdouble fovY, GLdouble aspect, GLdouble zNear, GLdouble zFar );
     void toggleFullscreen();
+    void translateCamera(int key, int valueModifier);
+    void rotateCamera(int key, int valueModifier);
+    void moveCamera();
+    GLuint loadShaders(const char * vertex_file_path,const char * fragment_file_path);
 
 public slots:
     virtual void timeOutSlot();
@@ -23,6 +28,9 @@ public slots:
 private:
     QTimer *t_Timer;
     bool fullscreen;
+    float camXpos, camZpos; // For camera translation purpose
+    int camXangle, camYangle; // For camera rotation purpose
+    GLuint VertexArrayID; // Vertex Array Object
 
 };
 

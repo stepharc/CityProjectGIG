@@ -1,6 +1,7 @@
 #ifndef BUILDING_H
 #define BUILDING_H
 
+#include <GL/glut.h>
 #include <stdlib.h>
 #include <QDebug>
 
@@ -16,6 +17,7 @@ public :
     // On laisse aux classes filles le soin de déclarer cette fonction, car elle diffère selon
     // la forme générale du bâtiment (carrée, circulaire, ...)
     virtual void generateBuilding() = 0;
+    void drawBuilding(GLuint VertexBuffer, int bufferLength);
     Building(int minh, int maxh, int minw, int maxw);
     int getHeight();
     int getWidth();

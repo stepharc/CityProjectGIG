@@ -9,14 +9,13 @@ testWindow::testWindow(QWidget *parent)
 //Initialisation d'openGL
 void testWindow::initializeGL()
 {
+    //GLuint programID = loadShaders("shaders/testvertex.vertexshader", "shaders/testfragment.fragmentshader");
     glShadeModel(GL_SMOOTH);
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    glClearDepth(1.0f);
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LEQUAL);
+    glClearColor(0.7f, 0.9f, 1.0f, 1.0f);
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
     loadTexture("texture/box.png");
     glEnable(GL_TEXTURE_2D);
+    //glUseProgram(programID);
 }
 
 //Fonction permettant de gérer le redimensionnement (changement résolution)

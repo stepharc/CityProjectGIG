@@ -33,7 +33,9 @@ SOURCES += \
     squaredbuilding.cpp \
     circularbuilding.cpp \
     house.cpp \
-    tower.cpp
+    tower.cpp \
+    block.cpp \
+    surface_ville.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -44,7 +46,8 @@ HEADERS += \
     circularbuilding.h \
     house.h \
     tower.h \
-    tower.h
+    block.h \
+    surface_ville.h
 
 FORMS += \
         mainwindow.ui

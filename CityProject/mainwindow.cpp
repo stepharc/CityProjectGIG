@@ -17,7 +17,8 @@ void MainWindow::on_actionBuildingWin_triggered()
 {
     if(twin != NULL) twin->close();
     twin = new testWindow();
-    Building * h = new Tower();
+    //Building * h = new Tower();
+    Building * h = new House();
     h->setSurfacePosition(0,0,0);
     twin->setAttribute(Qt::WA_DeleteOnClose);
     twin->loadBuilding(h);
