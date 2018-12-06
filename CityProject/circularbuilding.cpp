@@ -5,6 +5,6 @@ CircularBuilding::CircularBuilding(int minh, int maxh, int minw, int maxw) : Bui
 
 }
 
-void CircularBuilding::generateBuilding(){
+const GLfloat CircularBuilding::generateBuilding(GLuint programID){
 
 }

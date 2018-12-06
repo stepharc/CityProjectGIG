@@ -9,11 +9,9 @@ testWindow::testWindow(QWidget *parent)
 //Initialisation d'openGL
 void testWindow::initializeGL()
 {
+    programID = loadShaders("shaders/testvertex.vert", "shaders/testfragment.frag");
     glShadeModel(GL_SMOOTH);
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    glClearDepth(1.0f);
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LEQUAL);
+    glClearColor(0.7f, 0.9f, 1.0f, 1.0f);
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
     loadTexture("texture/box.png");
     glEnable(GL_TEXTURE_2D);
@@ -36,7 +34,10 @@ void testWindow::resizeGL(int width, int height)
 void testWindow::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    build->generateBuilding();
+    static const GLfloat vbufferdata = build->generateBuilding(programID);
+    GLuint vb = getVertexBuffer();
+    int bl = build->getBufferLength();
+    build->drawBuilding(vb, vbufferdata, bl);
     glFlush();
 }
 
