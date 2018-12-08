@@ -16,10 +16,12 @@ class testWindow : public baseGLWidget
         void paintGL();
         void loadTexture(QString texturename);
         void loadBuilding(Building * h);
+        GLuint getProgramID(){ return programID; }
 
     private:
         GLuint texture[1]; //On charge une seule texture
         Building * build;
+        GLuint programID;
 };
 
 #endif // TESTWINDOW_H

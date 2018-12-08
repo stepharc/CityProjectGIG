@@ -10,7 +10,7 @@ class CircularBuilding : public Building
 private :
 
 public:
-    void generateBuilding();
+    const GLfloat generateBuilding(GLuint programID);
     CircularBuilding(int minh, int maxh, int minw, int maxw);
 };
 
