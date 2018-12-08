@@ -17,8 +17,8 @@ private :
 public :
     // On laisse aux classes filles le soin de déclarer cette fonction, car elle diffère selon
     // la forme générale du bâtiment (carrée, circulaire, ...)
-    virtual const GLfloat generateBuilding(GLuint programID) = 0;
-    void drawBuilding(GLuint VertexBuffer, const GLfloat vbdata, int bufferLength);
+    virtual void generateBuilding(GLuint programID) = 0;
+    void drawBuilding(GLuint VertexBuffer, int bufferLength);
     Building(int minh, int maxh, int minw, int maxw);
     int getHeight();
     int getWidth();

@@ -11,7 +11,7 @@ class SquaredBuilding : public Building
 private:
 public:
     SquaredBuilding(int minh, int maxh, int minw, int maxw);
-    const GLfloat generateBuilding(GLuint programID);
+    void generateBuilding(GLuint programID);
 };
 
 #endif // SQUAREDBUILDING_H

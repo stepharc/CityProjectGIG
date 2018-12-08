@@ -10,7 +10,7 @@ class baseGLWidget : public QGLWidget
 {
     Q_OBJECT
 public:
-    explicit baseGLWidget(int framesPerSecond = 0, QWidget *parent = 0, char *name = 0);
+    explicit baseGLWidget(int framesPerSecond = 0, QWidget *parent = nullptr, char *name = nullptr);
     virtual void initializeGL() = 0;
     virtual void resizeGL(int width, int height) = 0;
     virtual void paintGL() = 0;
