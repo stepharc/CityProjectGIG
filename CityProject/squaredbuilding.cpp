@@ -65,7 +65,7 @@ SquaredBuilding::SquaredBuilding(int minh, int maxh, int minw, int maxw) : Build
     glEnd();
 }*/
 
-const GLfloat SquaredBuilding::generateBuilding(GLuint programID){
+void SquaredBuilding::generateBuilding(GLuint programID){
     float posX = getSurfaceX();
     float posY = getSurfaceY();
     float posZ = getSurfaceZ();
@@ -111,5 +111,6 @@ const GLfloat SquaredBuilding::generateBuilding(GLuint programID){
         minl, maxh, maxp,
         maxl,minh, maxp
     };
-    return g_vertex_buffer_data;
+    // Give our vertices to OpenGL.
+    glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
 }

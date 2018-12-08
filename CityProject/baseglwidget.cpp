@@ -1,4 +1,5 @@
 #include "baseglwidget.h"
+#include <iostream>
 #include <sstream>
 #include <fstream>
 
@@ -156,6 +157,9 @@ void baseGLWidget::timeOutSlot()
     updateGL();
 }
 
+//In order to easily access shaders directory in this project path, you need to disable Shadow
+//Build option (which is located at Projects, left sidebar) so build files are generated in
+//project directory.
 GLuint baseGLWidget::loadShaders(const char * vertex_file_path, const char * fragment_file_path){
 
     // Create the shaders
@@ -170,9 +174,9 @@ GLuint baseGLWidget::loadShaders(const char * vertex_file_path, const char * fra
         sstr << VertexShaderStream.rdbuf();
         VertexShaderCode = sstr.str();
         VertexShaderStream.close();
+        printf("Finished reading vertex shader file at %s\n", vertex_file_path);
     }else{
-        printf("Impossible to open %s. Are you in the right directory ? Don't forget to read the FAQ !\n", vertex_file_path);
-        getchar();
+        printf("Impossible to open %s. Are you in the right directory ?\n", vertex_file_path);
         return 0;
     }
 
@@ -184,6 +188,7 @@ GLuint baseGLWidget::loadShaders(const char * vertex_file_path, const char * fra
         sstr << FragmentShaderStream.rdbuf();
         FragmentShaderCode = sstr.str();
         FragmentShaderStream.close();
+        printf("Finished reading fragment shader file at %s\n", fragment_file_path);
     }
 
     GLint Result = GL_FALSE;
@@ -240,6 +245,8 @@ GLuint baseGLWidget::loadShaders(const char * vertex_file_path, const char * fra
 
     glDeleteShader(VertexShaderID);
     glDeleteShader(FragmentShaderID);
+
+    printf("Program successfully created, id : %d\n", int(ProgramID));
 
     return ProgramID;
 }

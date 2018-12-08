@@ -1,9 +1,11 @@
 #include "testwindow.h"
 #include "GL/glu.h"
+#include <iostream>
 
 testWindow::testWindow(QWidget *parent)
     : baseGLWidget(60, parent, "Building Test Window")
 {
+    programID = GLuint(-1);
 }
 
 //Initialisation d'openGL
@@ -15,6 +17,7 @@ void testWindow::initializeGL()
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
     loadTexture("texture/box.png");
     glEnable(GL_TEXTURE_2D);
+    build->generateBuilding(programID);
 }
 
 //Fonction permettant de gérer le redimensionnement (changement résolution)
@@ -25,7 +28,7 @@ void testWindow::resizeGL(int width, int height)
     glViewport(0, 0, width, height);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    perspectiveGL(45.0f, (GLfloat)width/(GLfloat)height, 0.1f, 100.0f);
+    perspectiveGL(45.0f, GLfloat(width)/GLfloat(height), 0.1f, 100.0f);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 }
@@ -34,10 +37,9 @@ void testWindow::resizeGL(int width, int height)
 void testWindow::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    static const GLfloat vbufferdata = build->generateBuilding(programID);
     GLuint vb = getVertexBuffer();
     int bl = build->getBufferLength();
-    build->drawBuilding(vb, vbufferdata, bl);
+    build->drawBuilding(vb, bl);
     glFlush();
 }
 
