@@ -11,15 +11,23 @@ public:
     baseGeometry(QString vsp, QString fsp, QVector3D center, QVector3D scale);
     virtual ~baseGeometry();
 
-    void drawGeometry(QOpenGLShaderProgram *program);
+    void initGL();
+    bool prepareShaderProgram();
 
-    QString getVertexShaderPath(){ return vertexShaderPath; }
-    QString getFragShaderPath(){ return fragShaderPath; }
+    void drawGeometry();
+
+    QOpenGLShaderProgram shaderProgram;
     QVector3D getCenterModel(){ return centerModel; }
     QVector3D getScaleModel(){ return scaleModel; }
 
+    struct VertexData
+    {
+        QVector3D position;
+        QVector2D texCoord;
+    };
+
 protected:
-    void initGeometry();
+    virtual void initGeometry();
 
     QString vertexShaderPath;
     QString fragShaderPath;

@@ -7,7 +7,7 @@ class House : public SquaredBuilding
 {
 private :
 public:
-    House();
+    House(QVector3D center);
 };
 
 #endif // HOUSE_H

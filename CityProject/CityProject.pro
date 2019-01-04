@@ -26,8 +26,7 @@ LIBS += -Iglut -IGLU
 
 SOURCES += \
         main.cpp \
-        #mainwindow.cpp \
-    #testwindow.cpp \
+        mainwindow.cpp \
     building.cpp \
     squaredbuilding.cpp \
     circularbuilding.cpp \
@@ -37,13 +36,11 @@ SOURCES += \
     basegeometry.cpp
 
 HEADERS += \
-        #mainwindow.h \
-    #testwindow.h \
+        mainwindow.h \
     building.h \
     squaredbuilding.h \
     circularbuilding.h \
     house.h \
-    tower.h \
     tower.h \
     baseglwidget.h \
     basegeometry.h

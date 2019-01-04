@@ -3,9 +3,8 @@
 
 #include <QMainWindow>
 #include <QApplication>
-#include "house.h"
-#include "tower.h"
-#include "testwindow.h"
+
+#include "baseglwidget.h"
 
 namespace Ui {
 class MainWindow;
@@ -24,7 +23,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    testWindow * twin;
+    baseGLWidget * twin;
 };
 
 #endif // MAINWINDOW_H

@@ -3,12 +3,6 @@
 #include <QVector2D>
 #include <QVector3D>
 
-struct VertexData
-{
-    QVector3D position;
-    QVector2D texCoord;
-};
-
 baseGeometry::baseGeometry(QString vsp, QString fsp, QVector3D center, QVector3D scale)
     : indexBuf(QOpenGLBuffer::IndexBuffer),
       vertexShaderPath(vsp),
@@ -16,6 +10,15 @@ baseGeometry::baseGeometry(QString vsp, QString fsp, QVector3D center, QVector3D
       centerModel(center),
       scaleModel(scale)
 {
+}
+
+baseGeometry::~baseGeometry()
+{
+    arrayBuf.destroy();
+    indexBuf.destroy();
+}
+
+void baseGeometry::initGL(){
     initializeOpenGLFunctions();
 
     // Generate 2 VBOs
@@ -26,10 +29,22 @@ baseGeometry::baseGeometry(QString vsp, QString fsp, QVector3D center, QVector3D
     initGeometry();
 }
 
-baseGeometry::~baseGeometry()
+bool baseGeometry::prepareShaderProgram()
 {
-    arrayBuf.destroy();
-    indexBuf.destroy();
+    // First we load and compile the vertex shader…
+    bool result = shaderProgram.addShaderFromSourceFile( QOpenGLShader::Vertex, vertexShaderPath );
+    if ( !result ) qWarning() << shaderProgram.log() ;
+
+
+    // …now the fragment shader…
+    result = shaderProgram.addShaderFromSourceFile( QOpenGLShader::Fragment, fragShaderPath );
+    if ( !result ) qWarning() << shaderProgram.log();
+
+    // … we link them to shader pipeline in order to resolve any references.
+    result = shaderProgram.link();
+    if ( !result ) qWarning() << "Could not link shader program:" << shaderProgram.log();
+
+    return result;
 }
 
 void baseGeometry::initGeometry()
@@ -100,7 +115,7 @@ void baseGeometry::initGeometry()
     indexBuf.allocate(indices, 34 * sizeof(GLushort));
 }
 
-void baseGeometry::drawGeometry(QOpenGLShaderProgram *program)
+void baseGeometry::drawGeometry()
 {
     // Tell OpenGL which VBOs to use
     arrayBuf.bind();
@@ -110,9 +125,9 @@ void baseGeometry::drawGeometry(QOpenGLShaderProgram *program)
     quintptr offset = 0;
 
     // Tell OpenGL programmable pipeline how to locate vertex position data
-    int vertexLocation = program->attributeLocation("a_position");
-    program->enableAttributeArray(vertexLocation);
-    program->setAttributeBuffer(vertexLocation, GL_FLOAT, offset, 3, sizeof(VertexData));
+    int vertexLocation = shaderProgram.attributeLocation("a_position");
+    shaderProgram.enableAttributeArray(vertexLocation);
+    shaderProgram.setAttributeBuffer(vertexLocation, GL_FLOAT, int(offset), 3, sizeof(VertexData));
 
     // Offset for texture coordinate
     //offset += sizeof(QVector3D);
@@ -123,5 +138,5 @@ void baseGeometry::drawGeometry(QOpenGLShaderProgram *program)
     program->setAttributeBuffer(texcoordLocation, GL_FLOAT, offset, 2, sizeof(VertexData));*/
 
     // Draw cube geometry using indices from VBO 1
-    glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_SHORT, 0);
+    glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_SHORT, nullptr);
 }
