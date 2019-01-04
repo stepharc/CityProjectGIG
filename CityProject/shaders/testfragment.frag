@@ -1,8 +1,12 @@
 #version 300 es
+#undef lowp
+#undef mediump
+#undef highp
 
 precision mediump float;
-out vec3 color;
+
+out vec4 color;
 
 void main(){
-  color = vec3(0.5f, 0.5f, 0.5f);
+  color = vec4( 0.0 , 1.0 , 0.0 , 1.0 );
 }
