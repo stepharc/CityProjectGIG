@@ -14,7 +14,7 @@ class baseGLWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
  Q_OBJECT
 public:
-    baseGLWidget(QWidget* parent = nullptr );
+    baseGLWidget(std::vector<baseGeometry *> glist, QWidget* parent = nullptr );
 
 protected:
     virtual void initializeGL();
@@ -24,13 +24,12 @@ protected:
     void timerEvent(QTimerEvent* e);
 
 private:
-    bool prepareShaderProgram( const QString& vertexShaderPath, const QString& fragmentShaderPath );
-
-    QOpenGLShaderProgram shaderProgram_;
-    baseGeometry* geometries_;
+    std::vector<baseGeometry *> geos_;
     QBasicTimer timer_;
 
+    float rotateAngleY_;
     QVector3D cameraPos_;
+    QVector3D cameraTarget_;
     QMatrix4x4 projection_;
 };
 

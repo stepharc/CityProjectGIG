@@ -2,12 +2,15 @@
 
 #include <iostream>
 #include <cmath>
-#include <QCoreApplication>
 
-baseGLWidget::baseGLWidget(QWidget* parent )
- : QOpenGLWidget( parent )
+baseGLWidget::baseGLWidget(std::vector<baseGeometry *> glist, QWidget* parent)
+ : QOpenGLWidget( parent ),
+   geos_(glist)
 {
-    cameraPos_ = QVector3D();
+    float offset = 5;
+    rotateAngleY_ = 0;
+    cameraPos_ = QVector3D(0, 1, 0);
+    cameraTarget_ = QVector3D(cameraPos_.x(), cameraPos_.y(), cameraPos_.z() - offset);
 }
 
 void baseGLWidget::timerEvent(QTimerEvent*){
@@ -21,46 +24,17 @@ void baseGLWidget::initializeGL()
     // Set the clear color to blue
     glClearColor( 0.0f, 0.0f, 1.0f, 1.0f );
 
-    QString vsp = "../shaders/basevertex.vert";
-    QString fsp = "../shaders/basefrag.frag";
-    geometries_ = new baseGeometry(vsp, fsp, QVector3D(1, 1, -4), QVector3D(1, 1, 2));
-
-    // Prepare a complete shader program… (NEED PARAMETERS HERE)
-    if ( !prepareShaderProgram( geometries_->getVertexShaderPath(), geometries_->getFragShaderPath() ) ){
-        return;
-    }
-
-    // Bind the shader program so that we can associate variables from
-    // our application to the shaders
-    if ( !shaderProgram_.bind() )
-    {
-        std::cout << "Could not bind shader program to context" << std::endl;
-        return;
+    // Don't forget to set up OpenGL context for objects to show,
+    // since this widget's OpenGL context has been initialized.
+    for(int i = 0; i < int(geos_.size()); i++){
+        geos_.at(ulong(i))->initGL();
+        geos_.at(ulong(i))->prepareShaderProgram();
     }
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
 
     timer_.start(12, this);
-}
-
-bool baseGLWidget::prepareShaderProgram( const QString& vertexShaderPath,
- const QString& fragmentShaderPath )
-{
-    // First we load and compile the vertex shader…
-    bool result = shaderProgram_.addShaderFromSourceFile( QOpenGLShader::Vertex, vertexShaderPath );
-    if ( !result ) qWarning() << shaderProgram_.log() ;
-
-
-    // …now the fragment shader…
-    result = shaderProgram_.addShaderFromSourceFile( QOpenGLShader::Fragment, fragmentShaderPath );
-    if ( !result ) qWarning() << shaderProgram_.log();
-
-    // … we link them to shader pipeline in order to resolve any references.
-    result = shaderProgram_.link();
-    if ( !result ) qWarning() << "Could not link shader program:" << shaderProgram_.log();
-
-    return result;
 }
 
 void baseGLWidget::resizeGL( int w, int h )
@@ -75,7 +49,7 @@ void baseGLWidget::resizeGL( int w, int h )
     projection_.setToIdentity();
 
     // Set perspective projection
-    projection_.perspective(fov, aspect, zNear, zFar);
+    projection_.perspective(fov, float(aspect), float(zNear), zFar);
 }
 
 void baseGLWidget::paintGL()
@@ -83,52 +57,76 @@ void baseGLWidget::paintGL()
     // Clear the buffer with the current clearing color
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-    // Calculate model view transformation
-    // Model Matrix, translate at object's center
-    // Scale : X -> width, Y -> height, Z-> depth.
-    QMatrix4x4 modelMatrix;
-    modelMatrix.translate(geometries_->getCenterModel());
-    modelMatrix.scale(geometries_->getScaleModel());
-
     QMatrix4x4 viewMatrix;
     viewMatrix.lookAt(
         cameraPos_,
-        geometries_->getCenterModel(),
+        cameraTarget_,
         QVector3D(0, 1, 0)
     );
+    viewMatrix.rotate(rotateAngleY_, 0, 1, 0);
 
-    // Set modelview-projection matrix
-    shaderProgram_.setUniformValue("mvp_matrix", projection_ * viewMatrix * modelMatrix);
+    for(int i = 0; i < int(geos_.size()); i++){
+        baseGeometry * geometry = geos_.at(ulong(i));
 
-    // Draw stuff
-    geometries_->drawGeometry(&shaderProgram_);
+        // Calculate model view transformation
+        // Model Matrix, translate at object's center
+        QMatrix4x4 modelMatrix;
+        modelMatrix.translate(geometry->getCenterModel());
+        modelMatrix.scale(geometry->getScaleModel());
+
+        // Bind the shader program so that we can associate variables from
+        // our application to the shaders
+        if ( !geometry->shaderProgram.bind() )
+        {
+            std::cout << "Could not bind shader program to context" << std::endl;
+            return;
+        }
+
+        // Set modelview-projection matrix
+        geometry->shaderProgram.setUniformValue("mvp_matrix", projection_ * viewMatrix * modelMatrix);
+
+        // Draw stuff
+        geometry->drawGeometry();
+    }
 }
 
 void baseGLWidget::keyPressEvent( QKeyEvent* e )
 {
-    float pas = 0.1f;
+    float pas = 0.1f, rotateSpeed = 0.8f;
     switch ( e->key() )
     {
         case Qt::Key_Escape:
-            QCoreApplication::instance()->quit();
+            this->close();
             break;
         case Qt::Key_S: // Translate : Backward
             cameraPos_.setZ(cameraPos_.z() + pas);
+            cameraTarget_.setZ(cameraTarget_.z() + pas);
             break;
         case Qt::Key_Z: // Translate : Forward
             cameraPos_.setZ(cameraPos_.z() - pas);
+            cameraTarget_.setZ(cameraTarget_.z() - pas);
             break;
         case Qt::Key_D: // Translate : Right
             cameraPos_.setX(cameraPos_.x() + pas);
+            cameraTarget_.setX(cameraTarget_.x() + pas);
             break;
         case Qt::Key_Q: // Translate : Left
             cameraPos_.setX(cameraPos_.x() - pas);
+            cameraTarget_.setX(cameraTarget_.x() - pas);
             break;
         case Qt::Key_Up: // Translate : Up
             cameraPos_.setY(cameraPos_.y() + pas);
+            cameraTarget_.setY(cameraTarget_.y() + pas);
             break;
         case Qt::Key_Down: // Translate : Down
             cameraPos_.setY(cameraPos_.y() - pas);
+            cameraTarget_.setY(cameraTarget_.y() - pas);
+            break;
+        case Qt::Key_Right: // Rotate : Right
+            rotateAngleY_ += rotateSpeed;
+            break;
+        case Qt::Key_Left: // Rotate : Left
+            rotateAngleY_ -= rotateSpeed;
             break;
         default:
             QString keyText = QKeySequence(e->key()).toString();
