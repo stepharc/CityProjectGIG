@@ -1,38 +1,37 @@
 #ifndef BASEGLWIDGET_H
 #define BASEGLWIDGET_H
 
-#include <GL/glut.h>
-#include <QtOpenGL>
-#include <QGLWidget>
-#include <GLES3/gl3.h>
+#include "basegeometry.h"
 
-class baseGLWidget : public QGLWidget
+#include <QOpenGLWidget>
+#include <QOpenGLFunctions>
+#include <QOpenGLBuffer>
+#include <QOpenGLShaderProgram>
+#include <QKeyEvent>
+#include <QBasicTimer>
+
+class baseGLWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
-    Q_OBJECT
+ Q_OBJECT
 public:
-    explicit baseGLWidget(int framesPerSecond = 0, QWidget *parent = nullptr, char *name = nullptr);
-    virtual void initializeGL() = 0;
-    virtual void resizeGL(int width, int height) = 0;
-    virtual void paintGL() = 0;
-    virtual void keyPressEvent( QKeyEvent *keyEvent );
-    void perspectiveGL( GLdouble fovY, GLdouble aspect, GLdouble zNear, GLdouble zFar );
-    void toggleFullscreen();
-    void translateCamera(int key, int valueModifier);
-    void rotateCamera(int key, int valueModifier);
-    void moveCamera();
-    GLuint loadShaders(const char * vertex_file_path,const char * fragment_file_path);
-    GLuint getVertexBuffer(){ return VertexBuffer; }
+    baseGLWidget(QWidget* parent = nullptr );
 
-public slots:
-    virtual void timeOutSlot();
+protected:
+    virtual void initializeGL();
+    virtual void resizeGL( int w, int h );
+    virtual void paintGL();
+    virtual void keyPressEvent( QKeyEvent* e );
+    void timerEvent(QTimerEvent* e);
 
 private:
-    QTimer *t_Timer;
-    bool fullscreen;
-    float camXpos, camZpos; // For camera translation purpose
-    int camXangle, camYangle; // For camera rotation purpose
-    GLuint VertexArrayID; // Vertex Array Object
-    GLuint VertexBuffer;
+    bool prepareShaderProgram( const QString& vertexShaderPath, const QString& fragmentShaderPath );
+
+    QOpenGLShaderProgram shaderProgram_;
+    baseGeometry* geometries_;
+    QBasicTimer timer_;
+
+    QVector3D cameraPos_;
+    QMatrix4x4 projection_;
 };
 
 #endif // BASEGLWIDGET_H

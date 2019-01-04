@@ -1,253 +1,138 @@
 #include "baseglwidget.h"
+
 #include <iostream>
-#include <sstream>
-#include <fstream>
+#include <cmath>
+#include <QCoreApplication>
 
-baseGLWidget::baseGLWidget(int framesPerSecond, QWidget *parent, char *name)
-    : QGLWidget(parent)
+baseGLWidget::baseGLWidget(QWidget* parent )
+ : QOpenGLWidget( parent )
 {
-    setWindowTitle(QString::fromUtf8(name));
-    if(framesPerSecond == 0)
-        t_Timer = nullptr;
-    else
-    {
-        int seconde = 1000; // 1 seconde = 1000 ms
-        int timerInterval = seconde / framesPerSecond;
-        t_Timer = new QTimer(this);
-        connect(t_Timer, SIGNAL(timeout()), this, SLOT(timeOutSlot()));
-        t_Timer->start( timerInterval );
-    }
-    fullscreen = false;
-    camXpos = 0.;
-    camZpos = -50.;
-    camXangle = 0;
-    camYangle = 45;
-    glGenVertexArrays(1, &VertexArrayID);
-    glBindVertexArray(VertexArrayID);
-    // Generate 1 buffer, put the resulting identifier in vertexbuffer
-    glGenBuffers(1, &VertexBuffer);
-    // The following commands will talk about our 'vertexbuffer' buffer
-    glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
+    cameraPos_ = QVector3D();
 }
 
-//Active le mode plein-écran si la fenêtre est en mode fenêtrée et vice-versa.
-void baseGLWidget::toggleFullscreen()
+void baseGLWidget::timerEvent(QTimerEvent*){
+    update();
+}
+
+void baseGLWidget::initializeGL()
 {
-    if(fullscreen)
+    initializeOpenGLFunctions();
+
+    // Set the clear color to blue
+    glClearColor( 0.0f, 0.0f, 1.0f, 1.0f );
+
+    QString vsp = "../shaders/basevertex.vert";
+    QString fsp = "../shaders/basefrag.frag";
+    geometries_ = new baseGeometry(vsp, fsp, QVector3D(1, 1, -4), QVector3D(1, 1, 2));
+
+    // Prepare a complete shader program… (NEED PARAMETERS HERE)
+    if ( !prepareShaderProgram( geometries_->getVertexShaderPath(), geometries_->getFragShaderPath() ) ){
+        return;
+    }
+
+    // Bind the shader program so that we can associate variables from
+    // our application to the shaders
+    if ( !shaderProgram_.bind() )
     {
-        showNormal();
-        fullscreen = false;
+        std::cout << "Could not bind shader program to context" << std::endl;
+        return;
     }
-    else
-    {
-        showFullScreen();
-        fullscreen = true;
-    }
+
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+
+    timer_.start(12, this);
 }
 
-void baseGLWidget::translateCamera(int key, int valueModifier){
-    switch(key){
-        case Qt::Key_Z:
-            camZpos += valueModifier;
-            break;
-        case Qt::Key_S:
-            camZpos -= valueModifier;
-            break;
-        case Qt::Key_Q:
-            camXpos += valueModifier;
-            break;
-        case Qt::Key_D:
-            camXpos -= valueModifier;
-            break;
-    }
-    moveCamera();
-}
-
-void baseGLWidget::rotateCamera(int key, int valueModifier){
-    switch(key){
-        case Qt::Key_F:
-            camXangle -= valueModifier;
-            break;
-        case Qt::Key_R:
-            camXangle += valueModifier;
-            break;
-        case Qt::Key_A:
-            camYangle += valueModifier;
-            break;
-        case Qt::Key_E:
-            camYangle -= valueModifier;
-            break;
-    }
-    moveCamera();
-}
-
-void baseGLWidget::moveCamera(){
-    // On efface les pixels de l'image (color buffer) et le Z-Buffer (depth buffer).
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // On initialise la matrice de vue avec la matrice identité.
-    glLoadIdentity();
-
-    // On applique une translation et une rotation à la scène pour simuler
-    // un déplacement de caméra.
-    glTranslatef(camXpos, 0, camZpos);
-    glRotatef(camXangle, 1, 0, 0);
-    glRotatef(camYangle, 0, 1, 0);
-
-    // On force OpenGL à afficher avant de passer à la suite.
-    glFlush();
-}
-
-void baseGLWidget::keyPressEvent(QKeyEvent *keyEvent)
+bool baseGLWidget::prepareShaderProgram( const QString& vertexShaderPath,
+ const QString& fragmentShaderPath )
 {
-    switch(keyEvent->key())
+    // First we load and compile the vertex shader…
+    bool result = shaderProgram_.addShaderFromSourceFile( QOpenGLShader::Vertex, vertexShaderPath );
+    if ( !result ) qWarning() << shaderProgram_.log() ;
+
+
+    // …now the fragment shader…
+    result = shaderProgram_.addShaderFromSourceFile( QOpenGLShader::Fragment, fragmentShaderPath );
+    if ( !result ) qWarning() << shaderProgram_.log();
+
+    // … we link them to shader pipeline in order to resolve any references.
+    result = shaderProgram_.link();
+    if ( !result ) qWarning() << "Could not link shader program:" << shaderProgram_.log();
+
+    return result;
+}
+
+void baseGLWidget::resizeGL( int w, int h )
+{
+    // Calculate aspect ratio
+    qreal aspect = qreal(w) / qreal(h ? h : 1);
+
+    // Set near plane to 0.001, far plane to 1500.0, field of view 45 degrees
+    const qreal zNear = 0.001, zFar = 1500.0, fov = 45.0;
+
+    // Reset projection
+    projection_.setToIdentity();
+
+    // Set perspective projection
+    projection_.perspective(fov, aspect, zNear, zFar);
+}
+
+void baseGLWidget::paintGL()
+{
+    // Clear the buffer with the current clearing color
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+    // Calculate model view transformation
+    // Model Matrix, translate at object's center
+    // Scale : X -> width, Y -> height, Z-> depth.
+    QMatrix4x4 modelMatrix;
+    modelMatrix.translate(geometries_->getCenterModel());
+    modelMatrix.scale(geometries_->getScaleModel());
+
+    QMatrix4x4 viewMatrix;
+    viewMatrix.lookAt(
+        cameraPos_,
+        geometries_->getCenterModel(),
+        QVector3D(0, 1, 0)
+    );
+
+    // Set modelview-projection matrix
+    shaderProgram_.setUniformValue("mvp_matrix", projection_ * viewMatrix * modelMatrix);
+
+    // Draw stuff
+    geometries_->drawGeometry(&shaderProgram_);
+}
+
+void baseGLWidget::keyPressEvent( QKeyEvent* e )
+{
+    float pas = 0.1f;
+    switch ( e->key() )
     {
         case Qt::Key_Escape:
-            close();
+            QCoreApplication::instance()->quit();
             break;
-        case Qt::Key_F1:
-            toggleFullscreen();
+        case Qt::Key_S: // Translate : Backward
+            cameraPos_.setZ(cameraPos_.z() + pas);
             break;
-        //Camera Translation
-        case Qt::Key_Z:
-            translateCamera(keyEvent->key(), 1);
+        case Qt::Key_Z: // Translate : Forward
+            cameraPos_.setZ(cameraPos_.z() - pas);
             break;
-        case Qt::Key_S:
-            translateCamera(keyEvent->key(), 1);
+        case Qt::Key_D: // Translate : Right
+            cameraPos_.setX(cameraPos_.x() + pas);
             break;
-        case Qt::Key_Q:
-            translateCamera(keyEvent->key(), 1);
+        case Qt::Key_Q: // Translate : Left
+            cameraPos_.setX(cameraPos_.x() - pas);
             break;
-        case Qt::Key_D:
-            translateCamera(keyEvent->key(), 1);
+        case Qt::Key_Up: // Translate : Up
+            cameraPos_.setY(cameraPos_.y() + pas);
             break;
-        //Camera Rotation
-        case Qt::Key_A:
-            rotateCamera(keyEvent->key(), 1);
+        case Qt::Key_Down: // Translate : Down
+            cameraPos_.setY(cameraPos_.y() - pas);
             break;
-        case Qt::Key_E:
-            rotateCamera(keyEvent->key(), 1);
-            break;
-        case Qt::Key_R:
-            rotateCamera(keyEvent->key(), 1);
-            break;
-        case Qt::Key_F:
-            rotateCamera(keyEvent->key(), 1);
-            break;
+        default:
+            QString keyText = QKeySequence(e->key()).toString();
+            std::cout << keyText.toStdString() << " : button pressed." << std::endl;
+            QOpenGLWidget::keyPressEvent( e );
     }
 }
-
-//Remplacement de gluPerspective
-void baseGLWidget::perspectiveGL( GLdouble fovY, GLdouble aspect, GLdouble zNear, GLdouble zFar )
-{
-    const GLdouble pi = 3.1415926535897932384626433832795;
-    GLdouble fW, fH;
-
-    fH = tan( fovY / 360 * pi ) * zNear;
-    fW = fH * aspect;
-
-    glFrustum( -fW, fW, -fH, fH, zNear, zFar );
-}
-
-//Cette fonction est appelée framesPerSecond (paramètre du constructeur de classe)
-//fois par seconde.
-void baseGLWidget::timeOutSlot()
-{
-    //appel à paintGL
-    updateGL();
-}
-
-//In order to easily access shaders directory in this project path, you need to disable Shadow
-//Build option (which is located at Projects, left sidebar) so build files are generated in
-//project directory.
-GLuint baseGLWidget::loadShaders(const char * vertex_file_path, const char * fragment_file_path){
-
-    // Create the shaders
-    GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
-    GLuint FragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
-
-    // Read the Vertex Shader code from the file
-    std::string VertexShaderCode;
-    std::ifstream VertexShaderStream(vertex_file_path, std::ios::in);
-    if(VertexShaderStream.is_open()){
-        std::stringstream sstr;
-        sstr << VertexShaderStream.rdbuf();
-        VertexShaderCode = sstr.str();
-        VertexShaderStream.close();
-        printf("Finished reading vertex shader file at %s\n", vertex_file_path);
-    }else{
-        printf("Impossible to open %s. Are you in the right directory ?\n", vertex_file_path);
-        return 0;
-    }
-
-    // Read the Fragment Shader code from the file
-    std::string FragmentShaderCode;
-    std::ifstream FragmentShaderStream(fragment_file_path, std::ios::in);
-    if(FragmentShaderStream.is_open()){
-        std::stringstream sstr;
-        sstr << FragmentShaderStream.rdbuf();
-        FragmentShaderCode = sstr.str();
-        FragmentShaderStream.close();
-        printf("Finished reading fragment shader file at %s\n", fragment_file_path);
-    }
-
-    GLint Result = GL_FALSE;
-    int InfoLogLength;
-
-    // Compile Vertex Shader
-    printf("Compiling shader : %s\n", vertex_file_path);
-    char const * VertexSourcePointer = VertexShaderCode.c_str();
-    glShaderSource(VertexShaderID, 1, &VertexSourcePointer , nullptr);
-    glCompileShader(VertexShaderID);
-
-    // Check Vertex Shader
-    glGetShaderiv(VertexShaderID, GL_COMPILE_STATUS, &Result);
-    glGetShaderiv(VertexShaderID, GL_INFO_LOG_LENGTH, &InfoLogLength);
-    if ( InfoLogLength > 0 ){
-        std::vector<char> VertexShaderErrorMessage(InfoLogLength+1);
-        glGetShaderInfoLog(VertexShaderID, InfoLogLength, nullptr, &VertexShaderErrorMessage[0]);
-        printf("%s\n", &VertexShaderErrorMessage[0]);
-    }
-
-    // Compile Fragment Shader
-    printf("Compiling shader : %s\n", fragment_file_path);
-    char const * FragmentSourcePointer = FragmentShaderCode.c_str();
-    glShaderSource(FragmentShaderID, 1, &FragmentSourcePointer , nullptr);
-    glCompileShader(FragmentShaderID);
-
-    // Check Fragment Shader
-    glGetShaderiv(FragmentShaderID, GL_COMPILE_STATUS, &Result);
-    glGetShaderiv(FragmentShaderID, GL_INFO_LOG_LENGTH, &InfoLogLength);
-    if ( InfoLogLength > 0 ){
-        std::vector<char> FragmentShaderErrorMessage(InfoLogLength+1);
-        glGetShaderInfoLog(FragmentShaderID, InfoLogLength, nullptr, &FragmentShaderErrorMessage[0]);
-        printf("%s\n", &FragmentShaderErrorMessage[0]);
-    }
-
-    // Link the program
-    printf("Linking program\n");
-    GLuint ProgramID = glCreateProgram();
-    glAttachShader(ProgramID, VertexShaderID);
-    glAttachShader(ProgramID, FragmentShaderID);
-    glLinkProgram(ProgramID);
-
-    // Check the program
-    glGetProgramiv(ProgramID, GL_LINK_STATUS, &Result);
-    glGetProgramiv(ProgramID, GL_INFO_LOG_LENGTH, &InfoLogLength);
-    if ( InfoLogLength > 0 ){
-        std::vector<char> ProgramErrorMessage(InfoLogLength+1);
-        glGetProgramInfoLog(ProgramID, InfoLogLength, nullptr, &ProgramErrorMessage[0]);
-        printf("%s\n", &ProgramErrorMessage[0]);
-    }
-
-    glDetachShader(ProgramID, VertexShaderID);
-    glDetachShader(ProgramID, FragmentShaderID);
-
-    glDeleteShader(VertexShaderID);
-    glDeleteShader(FragmentShaderID);
-
-    printf("Program successfully created, id : %d\n", int(ProgramID));
-
-    return ProgramID;
-}
-

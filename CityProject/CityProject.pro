@@ -26,25 +26,27 @@ LIBS += -Iglut -IGLU
 
 SOURCES += \
         main.cpp \
-        mainwindow.cpp \
-    baseglwidget.cpp \
-    testwindow.cpp \
+        #mainwindow.cpp \
+    #testwindow.cpp \
     building.cpp \
     squaredbuilding.cpp \
     circularbuilding.cpp \
     house.cpp \
-    tower.cpp
+    tower.cpp \
+    baseglwidget.cpp \
+    basegeometry.cpp
 
 HEADERS += \
-        mainwindow.h \
-    baseglwidget.h \
-    testwindow.h \
+        #mainwindow.h \
+    #testwindow.h \
     building.h \
     squaredbuilding.h \
     circularbuilding.h \
     house.h \
     tower.h \
-    tower.h
+    tower.h \
+    baseglwidget.h \
+    basegeometry.h
 
 FORMS += \
         mainwindow.ui
