@@ -1,13 +1,14 @@
 #ifndef TOWER_H
 #define TOWER_H
 
-#include "squaredbuilding.h"
+#include "building.h"
 
-class Tower : public SquaredBuilding{
+class Tower : public Building
+{
 private :
 
 public:
-    Tower();
+    Tower(QVector3D center);
 };
 
 #endif // TOWER_H
