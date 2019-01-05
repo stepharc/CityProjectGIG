@@ -6,12 +6,12 @@
 
 // Désigne les bâtiments de forme générale cylindrique.
 
-class CircularBuilding : public Building, public baseGeometry
+class CircularBuilding : public baseGeometry
 {
 private :
 
 public:
-    CircularBuilding(int minh, int maxh, int minw, int maxw, int minp, int maxp, QVector3D center);
+    CircularBuilding(int width, int height, int depth, QVector3D center);
     void initGeometry();
 };
 

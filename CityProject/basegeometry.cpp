@@ -2,6 +2,8 @@
 
 #include <QVector2D>
 #include <QVector3D>
+#include <QFile>
+#include <QRegularExpression>
 
 baseGeometry::baseGeometry(QString vsp, QString fsp, QVector3D center, QVector3D scale)
     : indexBuf(QOpenGLBuffer::IndexBuffer),
@@ -10,6 +12,63 @@ baseGeometry::baseGeometry(QString vsp, QString fsp, QVector3D center, QVector3D
       centerModel(center),
       scaleModel(scale)
 {
+}
+
+//Source : http://amin-ahmadi.com/2017/01/04/how-to-read-wavefront-obj-files-using-cqt/
+void baseGeometry::parseObjFile(const QString &fileName, std::vector<VertexData> &vdata)
+{
+    QFile file(fileName);
+    if(file.exists())
+    {
+        if(file.open(QFile::ReadOnly | QFile::Text))
+        {
+            std::vector<QVector3D> v;
+            std::vector<QVector3D> triangles;
+            std::vector<QVector2D> vt;
+
+            while(!file.atEnd())
+            {
+                QString line = file.readLine().trimmed();
+                QStringList lineParts = line.split(QRegularExpression("\\s+"));
+                if(lineParts.count() > 0)
+                {
+                    // if it’s a vertex position (v)
+                    if(lineParts.at(0).compare("v", Qt::CaseInsensitive) == 0)
+                    {
+                        v.push_back(QVector3D(lineParts.at(1).toFloat(),
+                        lineParts.at(2).toFloat(),
+                        lineParts.at(3).toFloat()));
+                    }
+
+                    // if it’s a texture (vt)
+                    else if(lineParts.at(0).compare("vt", Qt::CaseInsensitive) == 0)
+                    {
+                        vt.push_back(QVector2D(lineParts.at(1).toFloat(),
+                        lineParts.at(2).toFloat()));
+                    }
+
+                    // if it’s face data (f)
+                    // there’s an assumption here that faces are all triangles
+                    else if(lineParts.at(0).compare("f", Qt::CaseInsensitive) == 0)
+                    {
+                        // get points from v array
+                        triangles.push_back(v.at(lineParts.at(1).split("/").at(0).toInt() - 1));
+                        triangles.push_back(v.at(lineParts.at(2).split("/").at(0).toInt() - 1));
+                        triangles.push_back(v.at(lineParts.at(3).split("/").at(0).toInt() - 1));
+                    }
+                }
+            }
+            file.close();
+            QVector2D defaultTex = QVector2D(0,0);
+            for(ulong i = 0 ; i < triangles.size(); i++){
+                if(i >= vt.size()){
+                    vdata.push_back({triangles.at(i), defaultTex});
+                }else{
+                    vdata.push_back({triangles.at(i), vt.at(i)});
+                }
+            }
+        }
+    }
 }
 
 baseGeometry::~baseGeometry()
@@ -110,9 +169,35 @@ void baseGeometry::initGeometry()
     arrayBuf.bind();
     arrayBuf.allocate(vertices, 24 * sizeof(VertexData));
 
+    indexBufSize = 34;
     // Transfer index data to VBO 1
     indexBuf.bind();
-    indexBuf.allocate(indices, 34 * sizeof(GLushort));
+    indexBuf.allocate(indices, indexBufSize * sizeof(GLushort));
+}
+
+void baseGeometry::initGeometryWithOBJFile(const QString &fileName)
+{
+    std::vector<VertexData> vdata;
+    std::vector<GLushort> indexes;
+
+    parseObjFile(fileName, vdata);
+
+    VertexData vertices[vdata.size()];
+    std::copy(vdata.begin(), vdata.end(), vertices);
+
+    for(ulong i = 0; i < vdata.size(); i++){
+        indexes.push_back(GLushort(i));
+    }
+
+    GLushort indices[indexes.size()];
+    std::copy(indexes.begin(), indexes.end(), indices);
+
+    arrayBuf.bind();
+    arrayBuf.allocate(vertices, int(vdata.size() * sizeof(VertexData)));
+
+    indexBufSize = int(indexes.size());
+    indexBuf.bind();
+    indexBuf.allocate(indices, int(indexBufSize * sizeof(GLushort)));
 }
 
 void baseGeometry::drawGeometry()
@@ -138,5 +223,5 @@ void baseGeometry::drawGeometry()
     program->setAttributeBuffer(texcoordLocation, GL_FLOAT, offset, 2, sizeof(VertexData));*/
 
     // Draw cube geometry using indices from VBO 1
-    glDrawElements(GL_TRIANGLE_STRIP, 34, GL_UNSIGNED_SHORT, nullptr);
+    glDrawElements(GL_TRIANGLE_STRIP, indexBufSize, GL_UNSIGNED_SHORT, nullptr);
 }

@@ -33,7 +33,8 @@ SOURCES += \
     house.cpp \
     tower.cpp \
     baseglwidget.cpp \
-    basegeometry.cpp
+    basegeometry.cpp \
+    conebuilding.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -43,7 +44,8 @@ HEADERS += \
     house.h \
     tower.h \
     baseglwidget.h \
-    basegeometry.h
+    basegeometry.h \
+    conebuilding.h
 
 FORMS += \
         mainwindow.ui

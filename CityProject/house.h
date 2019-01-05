@@ -1,9 +1,9 @@
 #ifndef HOUSE_H
 #define HOUSE_H
 
-#include "squaredbuilding.h"
+#include "building.h"
 
-class House : public SquaredBuilding
+class House : public Building
 {
 private :
 public:

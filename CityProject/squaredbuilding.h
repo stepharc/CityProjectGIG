@@ -2,16 +2,13 @@
 #define SQUAREDBUILDING_H
 
 #include "building.h"
-#include "GL/glu.h"
+#include "basegeometry.h"
 
-// Désigne tous les bâtiments de forme générale cubique.
-
-class SquaredBuilding : public Building
+class SquaredBuilding : public baseGeometry
 {
 private:
 public:
-    SquaredBuilding(int minh, int maxh, int minw, int maxw);
-    void generateBuilding(GLuint programID);
+    SquaredBuilding(int width, int height, int depth, QVector3D center);
 };
 
 #endif // SQUAREDBUILDING_H
