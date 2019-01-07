@@ -32,7 +32,8 @@ void baseGLWidget::initializeGL()
     }
 
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
+    //Enabling face culling causes missing triangles on meshes.
+    //glEnable(GL_CULL_FACE);
 
     timer_.start(12, this);
 }

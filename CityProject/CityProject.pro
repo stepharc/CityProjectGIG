@@ -34,7 +34,12 @@ SOURCES += \
     tower.cpp \
     baseglwidget.cpp \
     basegeometry.cpp \
-    conebuilding.cpp
+    conebuilding.cpp \
+    district.cpp \
+    downtown.cpp \
+    periphery.cpp \
+    activityarea.cpp \
+    gridsurfacedialog.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -45,7 +50,13 @@ HEADERS += \
     tower.h \
     baseglwidget.h \
     basegeometry.h \
-    conebuilding.h
+    conebuilding.h \
+    district.h \
+    downtown.h \
+    periphery.h \
+    activityarea.h \
+    gridsurfacedialog.h
 
 FORMS += \
-        mainwindow.ui
+        mainwindow.ui \
+    gridsurfacedialog.ui
