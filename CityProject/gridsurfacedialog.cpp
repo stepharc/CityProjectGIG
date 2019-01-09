@@ -5,18 +5,14 @@
 #include <QScrollBar>
 #include <iostream>
 
-GridSurfaceDialog::GridSurfaceDialog(int cityWidth, int cityDepth, int nbGridCol, int nbGridRow, QWidget *parent) :
+GridSurfaceDialog::GridSurfaceDialog(int nbGridCol, int nbGridRow, float rsww, float rsdd, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::GridSurfaceDialog),
     dimCubeSelection_(0),
-    cubeDim_(10)
+    cubeDim_(15)
 {
-    //One rectangle covers rectSurfaceWidth_ * rectSurfaceDepth_ area on city surface.
-    rectSurfaceWidth_ = float(cityWidth) / float(nbGridCol);
-    rectSurfaceDepth_ = float(cityDepth) / float(nbGridRow);
-
-    QString rsw = QString::number(rectSurfaceWidth_);
-    QString rsd = QString::number(rectSurfaceDepth_);
+    QString rsw = QString::number(double(rsww));
+    QString rsd = QString::number(double(rsdd));
 
     ui->setupUi(this);
 
@@ -75,17 +71,17 @@ void GridSurfaceDialog::modifyGridColors(int x, int y){
     int rowmin = row - dimCubeSelection_;
     rowmin = rowmin < 0 ? 0 : rowmin;
     int rowmax = row + dimCubeSelection_;
-    rowmax = rowmax >= grid_.at(0).size() ? grid_.at(0).size() - 1 : rowmax;
+    rowmax = rowmax >= int(grid_.at(0).size()) ? int(grid_.at(0).size()) - 1 : rowmax;
     int colmin = col - dimCubeSelection_;
     colmin = colmin < 0 ? 0 : colmin;
     int colmax = col + dimCubeSelection_;
-    colmax = colmax >= grid_.size() ? grid_.size() - 1 : colmax;
+    colmax = colmax >= int(grid_.size()) ? int(grid_.size()) - 1 : colmax;
 
     // Change grid area selected to current color, if needed.
     for(int c = colmin; c <= colmax; c++){
         for(int r = rowmin; r <= rowmax; r++){
-            QBrush b = grid_.at(c).at(r)->brush();
-            if(b != currBrush_) grid_.at(c).at(r)->setBrush(currBrush_);
+            QBrush b = grid_.at(ulong(c)).at(ulong(r))->brush();
+            if(b != currBrush_) grid_.at(ulong(c)).at(ulong(r))->setBrush(currBrush_);
         }
     }
 }

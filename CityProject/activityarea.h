@@ -6,7 +6,7 @@
 class ActivityArea : public District
 {
 public:
-    ActivityArea();
+    ActivityArea(int c, int r, float rsw, float rsd);
 };
 
 #endif // ACTIVITYAREA_H

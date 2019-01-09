@@ -6,7 +6,7 @@
 class Downtown : public District
 {
 public:
-    Downtown();
+    Downtown(int c, int r, float rsw, float rsd);
 };
 
 #endif // DOWNTOWN_H

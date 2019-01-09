@@ -39,7 +39,8 @@ SOURCES += \
     downtown.cpp \
     periphery.cpp \
     activityarea.cpp \
-    gridsurfacedialog.cpp
+    gridsurfacedialog.cpp \
+    factory.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -55,7 +56,8 @@ HEADERS += \
     downtown.h \
     periphery.h \
     activityarea.h \
-    gridsurfacedialog.h
+    gridsurfacedialog.h \
+    factory.h
 
 FORMS += \
         mainwindow.ui \
