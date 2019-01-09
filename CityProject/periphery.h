@@ -6,7 +6,7 @@
 class Periphery : public District
 {
 public:
-    Periphery();
+    Periphery(int c, int r, float rsw, float rsd);
 };
 
 #endif // PERIPHERY_H

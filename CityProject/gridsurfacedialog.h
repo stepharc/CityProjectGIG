@@ -16,7 +16,7 @@ class GridSurfaceDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit GridSurfaceDialog(int cityWidth, int cityDepth, int nbGridRow, int nbGridCol, QWidget *parent = nullptr);
+    explicit GridSurfaceDialog(int nbGridRow, int nbGridCol, float rsw, float rsd, QWidget *parent = nullptr);
     ~GridSurfaceDialog();
 
 private:
@@ -26,7 +26,6 @@ private:
     QGraphicsScene *scene;
     std::vector<std::vector<QGraphicsRectItem *>> grid_;
     QBrush currBrush_;
-    float rectSurfaceWidth_, rectSurfaceDepth_;
     int dimCubeSelection_;
     int cubeDim_;
 
