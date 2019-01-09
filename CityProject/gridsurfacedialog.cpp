@@ -9,7 +9,7 @@ GridSurfaceDialog::GridSurfaceDialog(int nbGridCol, int nbGridRow, float rsww, f
     QDialog(parent),
     ui(new Ui::GridSurfaceDialog),
     dimCubeSelection_(0),
-    cubeDim_(15)
+    cubeDim_(30)
 {
     QString rsw = QString::number(double(rsww));
     QString rsd = QString::number(double(rsdd));
@@ -17,6 +17,7 @@ GridSurfaceDialog::GridSurfaceDialog(int nbGridCol, int nbGridRow, float rsww, f
     ui->setupUi(this);
 
     scene = new QGraphicsScene(this);
+    ui->graphicsView->setAlignment(Qt::AlignTop | Qt::AlignLeft);
     ui->graphicsView->setScene(scene);
     ui->gridInfo->setText("Info : One rectangle in grid = one area in city's surface area, dimensions : " + rsw + " * " + rsd);
 

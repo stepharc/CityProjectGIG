@@ -14,7 +14,7 @@ class baseGLWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
  Q_OBJECT
 public:
-    baseGLWidget(std::vector<baseGeometry *> glist, QWidget* parent = nullptr );
+    baseGLWidget(std::vector<baseGeometry *> & glist, QWidget* parent = nullptr );
 
 protected:
     virtual void initializeGL();
