@@ -3,7 +3,7 @@
 #include <iostream>
 #include <cmath>
 
-baseGLWidget::baseGLWidget(std::vector<baseGeometry *> glist, QWidget* parent)
+baseGLWidget::baseGLWidget(std::vector<baseGeometry *> & glist, QWidget* parent)
  : QOpenGLWidget( parent ),
    geos_(glist)
 {
@@ -43,7 +43,7 @@ void baseGLWidget::resizeGL( int w, int h )
     // Calculate aspect ratio
     qreal aspect = qreal(w) / qreal(h ? h : 1);
 
-    // Set near plane to 0.001, far plane to 1500.0, field of view 45 degrees
+    // Set near plane to 0.001, far plane to 300.0, field of view 45 degrees
     const qreal zNear = 0.001, zFar = 1500.0, fov = 45.0;
 
     // Reset projection
@@ -120,8 +120,10 @@ void baseGLWidget::keyPressEvent( QKeyEvent* e )
             cameraTarget_.setY(cameraTarget_.y() + pas);
             break;
         case Qt::Key_Down: // Translate : Down
-            cameraPos_.setY(cameraPos_.y() - pas);
-            cameraTarget_.setY(cameraTarget_.y() - pas);
+            if(cameraPos_.y() - pas >= 0.1f){
+                cameraPos_.setY(cameraPos_.y() - pas);
+                cameraTarget_.setY(cameraTarget_.y() - pas);
+            }
             break;
         case Qt::Key_Right: // Rotate : Right
             rotateAngleY_ += rotateSpeed;

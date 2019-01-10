@@ -8,6 +8,7 @@
 Tower::Tower(QVector3D center) : Building(5, 20, 1, 5, 1, 5, center)
 {
     int prob = rand() % 101;
+    center.setY(getHeight());
     if(prob >= 0 && prob <= 33){
         std::cout << "Squared Tower (" << prob << ")" << std::endl;
         shapeGeometry = new SquaredBuilding(getWidth(), getHeight(), getDepth(), center);

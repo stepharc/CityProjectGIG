@@ -16,6 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     twin = nullptr;
     gswin = nullptr;
+    cityWindow = nullptr;
     cityWidth_ = ui->cityWidth->value();
     cityDepth_ = ui->cityDepth->value();
     nbDistrictsCols_ = ui->nbDistrictsCols->value();
@@ -194,6 +195,11 @@ void MainWindow::on_MainWindow_surfaceLoaded(){
 
 void MainWindow::on_MainWindow_surfaceNotLoaded(){
     //Don't forget to erase old surfaceGrid_ if there's an existing one.
+    for(ulong i = 0; i < surfaceGrid_.size(); i++){
+        for(ulong j = 0; j < surfaceGrid_.size(); j++){
+            surfaceGrid_.at(i).erase(surfaceGrid_.at(i).begin() + int(j));
+        }
+    }
     surfaceGrid_.erase(surfaceGrid_.begin(), surfaceGrid_.end());
 
     ui->cityButton->setEnabled(false);
@@ -201,24 +207,59 @@ void MainWindow::on_MainWindow_surfaceNotLoaded(){
 
 void MainWindow::on_cityWidth_valueChanged(int arg1)
 {
+    emit surfaceNotLoaded();
     cityWidth_ = arg1;
     rsw_ = cityWidth_ / nbDistrictsCols_;
 }
 
 void MainWindow::on_cityDepth_valueChanged(int arg1)
 {
+    emit surfaceNotLoaded();
     cityDepth_ = arg1;
     rsd_ = cityDepth_ / nbDistrictsRows_;
 }
 
 void MainWindow::on_nbDistrictsCols_valueChanged(int arg1)
 {
-    nbDistrictsCols_ = arg1;
-    rsw_ = cityWidth_ / nbDistrictsCols_;
+    emit surfaceNotLoaded();
+    if(arg1 != 0){
+        nbDistrictsCols_ = arg1;
+        rsw_ = cityWidth_ / nbDistrictsCols_;
+    }
 }
 
 void MainWindow::on_nbDistrictsRows_valueChanged(int arg1)
 {
-    nbDistrictsRows_ = arg1;
-    rsd_ = cityDepth_ / nbDistrictsRows_;
+    emit surfaceNotLoaded();
+    if(arg1 != 0){
+        nbDistrictsRows_ = arg1;
+        rsd_ = cityDepth_ / nbDistrictsRows_;
+    }
+}
+
+void MainWindow::on_cityButton_clicked()
+{
+    if(cityWindow != nullptr) cityWindow->close();
+    std::vector<baseGeometry *> geos;
+
+    QString vspSurface = "../shaders/basevertex.vert";
+    QString fspSurface = "../shaders/surface.frag";
+    //Set surface geometry, so city surface's top left corner will be at (0, 0, 0).
+    //We take this scale, because base cube is 1 * 1;
+    baseGeometry * surfaceGeometry = new baseGeometry(vspSurface, fspSurface, QVector3D(cityWidth_/2, 0, cityDepth_/2), QVector3D(cityWidth_/2, 0.1f, cityDepth_/2));
+    geos.push_back(surfaceGeometry);
+
+    /*baseGeometry * cubeTest = new baseGeometry(vspSurface, "../shaders/testfragment.frag", QVector3D(0, 5, 0), QVector3D(1, 5, 1));
+    geos.push_back(cubeTest);*/
+
+    for(int i = 0; i < nbDistrictsCols_; i++){
+        for(int j = 0; j < nbDistrictsRows_; j++){
+            District * b = surfaceGrid_.at(ulong(i)).at(ulong(j));
+            baseGeometry * bg = b->getBuilding();
+            geos.push_back(bg);
+        }
+    }
+
+    cityWindow = new baseGLWidget(geos);
+    cityWindow->show();
 }

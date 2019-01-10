@@ -7,6 +7,7 @@
 House::House(QVector3D center) : Building(1, 5, 1, 5, 1, 5, center)
 {
     int prob = rand() % 101;
+    center.setY(getHeight());
     if(prob >= 0 && prob <= 49){
         std::cout << "Squared House (" << prob << ")" << std::endl;
         shapeGeometry = new SquaredBuilding(getWidth(), getHeight(), getDepth(), center);
