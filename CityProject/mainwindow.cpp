@@ -164,6 +164,14 @@ void MainWindow::on_comboBox_activated(int index)
                     this, &MainWindow::on_GridSurfaceDialog_sendSurfaceData);
             gswin->show();
             break;
+        case 5: // "Aléatoire " option
+            if(gswin != nullptr) gswin->close();
+            emit surfaceNotLoaded();
+            gswin = new GridSurfaceDialog(nbDistrictsRows_, nbDistrictsCols_, rsw_, rsd_,1);
+            connect(gswin, &GridSurfaceDialog::sendSurfaceData,
+                    this, &MainWindow::on_GridSurfaceDialog_sendSurfaceData);
+            gswin->show();
+            break;
     }
 }
 

@@ -48,6 +48,11 @@
       <string>Personnalisée ...</string>
      </property>
     </item>
+    <item>
+     <property name="text">
+      <string>Aléatoire</string>
+     </property>
+    </item>
    </widget>
    <widget class="QLabel" name="label">
     <property name="geometry">

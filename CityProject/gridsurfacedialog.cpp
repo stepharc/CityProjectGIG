@@ -1,11 +1,12 @@
 #include "gridsurfacedialog.h"
 #include "ui_gridsurfacedialog.h"
+#include "surface_ville.h"
 
 #include <QGraphicsView>
 #include <QScrollBar>
 #include <iostream>
 
-GridSurfaceDialog::GridSurfaceDialog(int nbGridCol, int nbGridRow, float rsww, float rsdd, QWidget *parent) :
+GridSurfaceDialog::GridSurfaceDialog(int nbGridCol, int nbGridRow,float rsww, float rsdd,int rdm, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::GridSurfaceDialog),
     dimCubeSelection_(0),
@@ -29,14 +30,30 @@ GridSurfaceDialog::GridSurfaceDialog(int nbGridCol, int nbGridRow, float rsww, f
     blackPen.setWidth(0);
 
     // Init surface grid with 100 % Periphery.
-    for (int i = 0; i < nbGridRow; i++){
-        std::vector<QGraphicsRectItem *> gridrow;
-        for(int j = 0; j < nbGridCol ; j++){
-            QGraphicsRectItem * rec = scene->addRect(i * cubeDim_, j * cubeDim_, cubeDim_, cubeDim_, blackPen);
-            rec->setBrush(currBrush_);
-            gridrow.push_back(rec);
+    if(rdm == 0){
+        for (int i = 0; i < nbGridRow; i++){
+            std::vector<QGraphicsRectItem *> gridrow;
+            for(int j = 0; j < nbGridCol ; j++){
+                QGraphicsRectItem * rec = scene->addRect(i * cubeDim_, j * cubeDim_, cubeDim_, cubeDim_, blackPen);
+                rec->setBrush(currBrush_);
+                gridrow.push_back(rec);
+            }
+            grid_.push_back(gridrow);
         }
-        grid_.push_back(gridrow);
+    }else {
+        //generate a random surface grid
+        surface_ville s(nbGridRow, nbGridCol);
+        s.dessiner_ville();
+        for (int i = 0; i < nbGridRow; i++){
+            std::vector<QGraphicsRectItem *> gridrow;
+            for(int j = 0; j < nbGridCol ; j++){
+                QGraphicsRectItem * rec = scene->addRect(i * cubeDim_, j * cubeDim_, cubeDim_, cubeDim_, blackPen);
+                if(s.ville[i][j] == 1) rec->setBrush(currBrush_);
+                else rec->setBrush(QBrush(Qt::black));// the road
+                gridrow.push_back(rec);
+            }
+            grid_.push_back(gridrow);
+        }
     }
 }
 

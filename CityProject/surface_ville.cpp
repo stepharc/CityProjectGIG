@@ -3,7 +3,7 @@
 #include <ctime>
 
 
-int surface_ville::maxBlockSize = 4;
+int surface_ville::maxBlockSize = 8;
 int surface_ville::minBlockSize = 2;
 
 surface_ville::surface_ville(int x,int y)
@@ -91,7 +91,7 @@ int surface_ville::decouper_bloc(Block b)
 
         if(okY){                //pas de découpage verticale
             //rangement des deux blocs
-            blocs_ville.push_back(Block(b.debutBlockX, b.debutBlockY, b.largeur_block, x-b.debutBlockY));
+            blocs_ville.push_back(Block(b.debutBlockX, b.debutBlockY, b.largeur_block, x-b.debutBlockX));
 
             blocs_ville.push_back(Block(x+1, b.debutBlockY, b.largeur_block, b.hauteur_block- x+b.debutBlockX -1));
 
@@ -104,13 +104,13 @@ int surface_ville::decouper_bloc(Block b)
             tracer_route(b.debutBlockX,b.debutBlockX+b.hauteur_block,y,0);
 
             //rangement des quatres blocs dans le tableau
-            blocs_ville.push_back(Block(b.debutBlockX, b.debutBlockY, y-b.debutBlockY, x-b.debutBlockY));
+            blocs_ville.push_back(Block(b.debutBlockX, b.debutBlockY, y-b.debutBlockY, x-b.debutBlockX));
 
-            blocs_ville.push_back(Block(b.debutBlockX+x+1, b.debutBlockY, y-b.debutBlockY, b.hauteur_block- x-1));
+            blocs_ville.push_back(Block(x+1, b.debutBlockY, y-b.debutBlockY, b.hauteur_block- x + b.debutBlockX-1));
 
-            blocs_ville.push_back(Block(b.debutBlockX, b.debutBlockY+y+1, b.largeur_block - y-1, x-b.debutBlockY));
+            blocs_ville.push_back(Block(b.debutBlockX, y+1, b.largeur_block - y + b.debutBlockY-1, x-b.debutBlockY));
 
-            blocs_ville.push_back(Block(b.debutBlockX +x+1, b.debutBlockY +y+1, b.largeur_block - y-1, b.hauteur_block -x-1));
+            blocs_ville.push_back(Block(x+1, y+1, b.largeur_block - y+ b.debutBlockY -1, b.hauteur_block -x +b.debutBlockX -1));
 
             decoupe = 1;
 
@@ -121,12 +121,12 @@ int surface_ville::decouper_bloc(Block b)
 void surface_ville::decouper_ville(){
 
         for(int i = 0; i < blocs_ville.size(); i++){
-            //cout<<"i = "<<i<<" taille tableau = "<<blocs_ville.size()<<endl;
+            cout<<"i = "<<i<<" taille tableau = "<<blocs_ville.size()<<endl;
             int decoupe = decouper_bloc(blocs_ville[i]);
             if(decoupe == 1){
                 blocs_ville.erase(blocs_ville.begin()+i);
                 i--;
-                //cout<<"i = "<<i<<" taille tableau = "<<blocs_ville.size()<<endl;
+                cout<<"i = "<<i<<" taille tableau = "<<blocs_ville.size()<<endl;
 
 
             }
