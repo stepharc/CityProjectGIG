@@ -36,13 +36,14 @@ signals :
 
 public slots:
     void on_GridSurfaceDialog_sendSurfaceData(std::vector<std::vector<QGraphicsRectItem *>>);
+    void on_cityButton_clicked();
 
 private:
     void fillSurfaceGrid(int nbRow, int nbCol, int choice);
     void fillConcentricSurfaceGrid(int nbRow, int nbCol);
 
     Ui::MainWindow *ui;
-    baseGLWidget * twin;
+    baseGLWidget * twin, *cityWindow;
     GridSurfaceDialog * gswin;
     std::vector<std::vector<District *>> surfaceGrid_;
     int cityWidth_, cityDepth_, nbDistrictsCols_, nbDistrictsRows_;

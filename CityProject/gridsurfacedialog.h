@@ -16,7 +16,7 @@ class GridSurfaceDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit GridSurfaceDialog(int nbGridRow, int nbGridCol, float rsw, float rsd, QWidget *parent = nullptr);
+    explicit GridSurfaceDialog(int nbGridRow, int nbGridCol, float rsw, float rsd,int rdm = 0, QWidget *parent = nullptr);
     ~GridSurfaceDialog();
 
 private:

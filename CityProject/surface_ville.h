@@ -50,6 +50,8 @@ public:
     void afficher_blocs_ville();
 
 
+
+
     //les attributs de la classe
     int citySizeX,citySizeY;
     static int minBlockSize,maxBlockSize;
